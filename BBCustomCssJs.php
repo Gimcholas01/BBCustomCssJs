@@ -35,6 +35,15 @@ function InjectScript($url)
     return '<script src="' . $url . '"></script>';
 }
 
+function InjectHtmlFile($filePath)
+{
+    if (!file_exists($filePath)) {
+        return '';
+    }
+
+    return file_get_contents($filePath);
+}
+
 function InjectCustomCssCode()
 {
     if (is_admin()) {
@@ -61,6 +70,18 @@ function InjectCustomJsCode()
     }
 }
 
+function InjectCustomHtmlCode()
+{
+    if (is_admin()) {
+        return;
+    }
+
+    foreach (glob(getCustomCodeDir() . '/*.html') as $filename) {
+        echo InjectHtmlFile($filename);
+    }
+}
+
 register_activation_hook(__FILE__, 'BBCustomCssJs_activate');
+add_action('wp_head', 'InjectCustomHtmlCode', 998);
 add_action('wp_head', 'InjectCustomCssCode', 999);
 add_action('wp_print_footer_scripts', 'InjectCustomJsCode');
